@@ -1,9 +1,12 @@
 package org.mimja156.tunneler;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -30,24 +33,90 @@ public final class Tunneler extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         boolean registered = Arrays.stream(Enchantment.values()).collect(Collectors.toList()).contains(tunnelerEnchantment);
-        if(!registered) registerEnchantment(tunnelerEnchantment);
+        if (!registered) registerEnchantment(tunnelerEnchantment);
     }
 
-    public static void registerEnchantment(Enchantment enchantment){
+    public static void registerEnchantment(Enchantment enchantment) {
         try {
             Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
             f.set(null, true);
             Enchantment.registerEnchantment(enchantment);
-        } catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getPlayer().getInventory().getItemInMainHand().hasItemMeta()){
-            if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasEnchant(tunnelerEnchantment)){
+        if (event.getPlayer().getInventory().getItemInMainHand().hasItemMeta()) {
+            if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasEnchant(tunnelerEnchantment)) {
                 if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.GOLDEN_PICKAXE) {
-                    Bukkit.broadcast(Component.text("block broken with tunneler enchant on pick!"));
+                    Location blockLocation = event.getBlock().getLocation();
+                    Location playerLocation = event.getPlayer().getLocation();
+
+                    int modX = event.getPlayer().getFacing().getModX();
+                    int modZ = event.getPlayer().getFacing().getModZ();
+
+
+                    Location block_middle_top = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX(),
+                            blockLocation.getBlockY() + 1,
+                            blockLocation.getBlockZ());
+
+                    Location block_middle_bottom = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX(),
+                            blockLocation.getBlockY() - 1,
+                            blockLocation.getBlockZ());
+
+                    Location block_left_top = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() + modZ,
+                            blockLocation.getBlockY() + 1,
+                            blockLocation.getBlockZ() + modX);
+
+                    Location block_left_middle = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() + modZ,
+                            blockLocation.getBlockY(),
+                            blockLocation.getBlockZ() + modX);
+
+                    Location block_left_bottom = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() + modZ,
+                            blockLocation.getBlockY() - 1,
+                            blockLocation.getBlockZ() + modX);
+
+
+                    Location block_right_top = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() - modZ,
+                            blockLocation.getBlockY() + 1,
+                            blockLocation.getBlockZ() - modX);
+
+                    Location block_right_middle = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() - modZ,
+                            blockLocation.getBlockY(),
+                            blockLocation.getBlockZ() - modX);
+
+                    Location block_right_bottom = new Location(
+                            playerLocation.getWorld(),
+                            blockLocation.getBlockX() - modZ,
+                            blockLocation.getBlockY() - 1,
+                            blockLocation.getBlockZ() - modX);
+
+                    block_left_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+                    block_left_middle.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+                    block_left_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+
+                    block_right_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+                    block_right_middle.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+                    block_right_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+
+                    block_middle_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
+                    block_middle_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
                 }
             }
         }
