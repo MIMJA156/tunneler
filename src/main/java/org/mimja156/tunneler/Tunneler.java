@@ -1,34 +1,40 @@
 package org.mimja156.tunneler;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class Tunneler extends JavaPlugin implements Listener {
     public static JavaPlugin plugin;
     public static TunnelerEnchantment tunnelerEnchantment = new TunnelerEnchantment(NamespacedKey.minecraft("mimja_tunneler_enchant"));
 
+    public static List<Material> validTools = new ArrayList<Material>(){{
+        add(Material.NETHERITE_PICKAXE);
+        add(Material.DIAMOND_PICKAXE);
+        add(Material.GOLDEN_PICKAXE);
+        add(Material.IRON_PICKAXE);
+        add(Material.STONE_PICKAXE);
+        add(Material.WOODEN_PICKAXE);
+    }};
+
     @Override
     public void onEnable() {
         plugin = this;
 
-        TunnelerCrafting tunnelerCrafting = new TunnelerCrafting(tunnelerEnchantment);
-        tunnelerCrafting.register();
+        TunnelerCrafting.register(tunnelerEnchantment);
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -48,85 +54,14 @@ public final class Tunneler extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getPlayer().getInventory().getItemInMainHand().hasItemMeta()) {
-            if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasEnchant(tunnelerEnchantment)) {
-                if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.GOLDEN_PICKAXE) {
-                    Location blockLocation = event.getBlock().getLocation();
-                    Location playerLocation = event.getPlayer().getLocation();
-
-                    int modX = event.getPlayer().getFacing().getModX();
-                    int modZ = event.getPlayer().getFacing().getModZ();
-
-
-                    Location block_middle_top = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX(),
-                            blockLocation.getBlockY() + 1,
-                            blockLocation.getBlockZ());
-
-                    Location block_middle_bottom = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX(),
-                            blockLocation.getBlockY() - 1,
-                            blockLocation.getBlockZ());
-
-                    Location block_left_top = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() + modZ,
-                            blockLocation.getBlockY() + 1,
-                            blockLocation.getBlockZ() + modX);
-
-                    Location block_left_middle = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() + modZ,
-                            blockLocation.getBlockY(),
-                            blockLocation.getBlockZ() + modX);
-
-                    Location block_left_bottom = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() + modZ,
-                            blockLocation.getBlockY() - 1,
-                            blockLocation.getBlockZ() + modX);
-
-
-                    Location block_right_top = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() - modZ,
-                            blockLocation.getBlockY() + 1,
-                            blockLocation.getBlockZ() - modX);
-
-                    Location block_right_middle = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() - modZ,
-                            blockLocation.getBlockY(),
-                            blockLocation.getBlockZ() - modX);
-
-                    Location block_right_bottom = new Location(
-                            playerLocation.getWorld(),
-                            blockLocation.getBlockX() - modZ,
-                            blockLocation.getBlockY() - 1,
-                            blockLocation.getBlockZ() - modX);
-
-                    block_left_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                    block_left_middle.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                    block_left_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-
-                    block_right_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                    block_right_middle.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                    block_right_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-
-                    block_middle_top.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                    block_middle_bottom.getBlock().breakNaturally(event.getPlayer().getInventory().getItemInMainHand());
-                }
-            }
-        }
+        BlockBreak.doBreak(event, tunnelerEnchantment);
     }
 
     @EventHandler
     public void prepareCraftItem(PrepareItemCraftEvent event) {
         if (event.getRecipe() != null) {
             if (event.getRecipe().getResult().containsEnchantment(tunnelerEnchantment)) {
-                if (event.getRecipe().getResult().getType() == Material.GOLDEN_PICKAXE) {
+                if (validTools.contains(event.getRecipe().getResult().getType())) {
                     ItemStack givenPick = event.getInventory().getMatrix()[4];
 
                     assert givenPick != null;
@@ -145,13 +80,23 @@ public final class Tunneler extends JavaPlugin implements Listener {
     public void prepareAnvilEvent(PrepareAnvilEvent event) {
         if (event.getInventory().getFirstItem() != null) {
             if (event.getInventory().getFirstItem().getEnchantments().containsKey(tunnelerEnchantment)) {
-                if (event.getInventory().getFirstItem().getType() == Material.GOLDEN_PICKAXE) {
+                if (validTools.contains(event.getInventory().getFirstItem().getType())) {
                     if (event.getResult() != null) {
-                        if (event.getResult().getType() == Material.GOLDEN_PICKAXE) {
-                            event.getResult().addUnsafeEnchantment(tunnelerEnchantment, 1);
-                        }
+                        event.getResult().addUnsafeEnchantment(tunnelerEnchantment, 1);
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void prepareGrindstoneEvent(PrepareGrindstoneEvent event) {
+        if (event.getInventory().getUpperItem() != null) {
+            if (event.getInventory().getUpperItem().getEnchantments().containsKey(tunnelerEnchantment)) {
+                List<String> lore = event.getResult().getLore();
+                lore.removeIf(loreItem -> loreItem.equalsIgnoreCase(tunnelerEnchantment.getName()));
+                System.out.println(lore);
+                event.getResult().setLore(lore);
             }
         }
     }

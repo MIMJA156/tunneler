@@ -20,7 +20,7 @@ public class TunnelerEnchantment extends Enchantment {
 
     @Override
     public @NotNull String getName() {
-        return "Tunneler Enchant";
+        return "§7Tunneler";
     }
 
     @Override

@@ -13,34 +13,29 @@ import java.util.List;
 import static org.bukkit.Bukkit.getServer;
 
 public class TunnelerCrafting {
-    public NamespacedKey key = new NamespacedKey(Tunneler.plugin, "mimja_tunneler_crafting");
-    public ShapedRecipe tunnelerRecipe;
+    public static void register(TunnelerEnchantment tunnelerEnchantment){
+        for (Material material: Tunneler.validTools) {
+            NamespacedKey key = new NamespacedKey(Tunneler.plugin, "mimja_tunneler_crafting_" + material.name().toLowerCase());
 
-    public TunnelerCrafting(TunnelerEnchantment tunnelerEnchantment){
-        ItemStack tunnelerItem = new ItemStack(Material.GOLDEN_PICKAXE);
-        tunnelerItem.addUnsafeEnchantment(tunnelerEnchantment, 1);
+            ItemStack item = new ItemStack(material);
+            item.addUnsafeEnchantment(tunnelerEnchantment, 1);
 
-        ItemMeta meta = tunnelerItem.getItemMeta();
-
-        if (meta != null) {
             List<Component> loreList = new ArrayList<>();
-            Component text = Component.text("§7Tunneler I");
+            Component text = Component.text(tunnelerEnchantment.getName());
             loreList.add(text);
+
+            ItemMeta meta = item.getItemMeta();
             meta.lore(loreList);
+            item.setItemMeta(meta);
 
-            tunnelerItem.setItemMeta(meta);
+            ShapedRecipe recipe = new ShapedRecipe(key, item);
+            recipe.shape("!@!", "@$@", "!@!");
+
+            recipe.setIngredient('!', Material.GOLD_INGOT);
+            recipe.setIngredient('@', Material.REDSTONE);
+            recipe.setIngredient('$', material);
+
+            getServer().addRecipe(recipe);
         }
-
-        tunnelerRecipe = new ShapedRecipe(key, tunnelerItem);
-    }
-
-    public void register(){
-        tunnelerRecipe.shape("!@!", "@$@", "!@!");
-
-        tunnelerRecipe.setIngredient('!', Material.GOLD_INGOT);
-        tunnelerRecipe.setIngredient('@', Material.REDSTONE);
-        tunnelerRecipe.setIngredient('$', Material.GOLDEN_PICKAXE);
-
-        getServer().addRecipe(tunnelerRecipe);
     }
 }
