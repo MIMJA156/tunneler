@@ -69,23 +69,37 @@ public class BlockBreak {
 
                         ItemStack itemUsed = event.getPlayer().getInventory().getItemInMainHand();
 
-                        block_left_top.getBlock().breakNaturally(itemUsed);
-                        block_left_middle.getBlock().breakNaturally(itemUsed);
-                        block_left_bottom.getBlock().breakNaturally(itemUsed);
+                        boolean block_left_top_did_break = block_left_top.getBlock().breakNaturally(itemUsed);
+                        boolean block_left_middle_did_break = block_left_middle.getBlock().breakNaturally(itemUsed);
+                        boolean block_left_bottom_did_break = block_left_bottom.getBlock().breakNaturally(itemUsed);
 
-                        block_right_top.getBlock().breakNaturally(itemUsed);
-                        block_right_middle.getBlock().breakNaturally(itemUsed);
-                        block_right_bottom.getBlock().breakNaturally(itemUsed);
+                        boolean block_right_top_did_break = block_right_top.getBlock().breakNaturally(itemUsed);
+                        boolean block_right_middle_did_break = block_right_middle.getBlock().breakNaturally(itemUsed);
+                        boolean block_right_bottom_did_break = block_right_bottom.getBlock().breakNaturally(itemUsed);
 
-                        block_middle_top.getBlock().breakNaturally(itemUsed);
-                        block_middle_bottom.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_top_did_break = block_middle_top.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_bottom_did_break = block_middle_bottom.getBlock().breakNaturally(itemUsed);
+
+                        int damage_to_be_applied = 0;
+
+                        if (block_left_top_did_break) damage_to_be_applied++;
+                        if (block_left_middle_did_break) damage_to_be_applied++;
+                        if (block_left_bottom_did_break) damage_to_be_applied++;
+
+                        if (block_right_top_did_break) damage_to_be_applied++;
+                        if (block_right_middle_did_break) damage_to_be_applied++;
+                        if (block_right_bottom_did_break) damage_to_be_applied++;
+
+                        if (block_middle_top_did_break) damage_to_be_applied++;
+                        if (block_middle_bottom_did_break) damage_to_be_applied++;
 
                         ItemMeta meta = itemUsed.getItemMeta();
                         if (meta != null) {
                             Damageable damage = ((Damageable)meta);
-                            damage.setDamage(damage.getDamage() + 7);
+                            damage.setDamage(damage.getDamage() + damage_to_be_applied);
                             itemUsed.setItemMeta(meta);
                         }
+
                     } else if (playerLocation.getPitch() >= 35 || playerLocation.getPitch() <= -35) {
                         Location block_middle_1 = new Location(
                                 blockLocation.getWorld(),
@@ -137,20 +151,35 @@ public class BlockBreak {
 
                         ItemStack itemUsed = event.getPlayer().getInventory().getItemInMainHand();
 
-                        block_middle_1.getBlock().breakNaturally(itemUsed);
-                        block_middle_2.getBlock().breakNaturally(itemUsed);
-                        block_middle_3.getBlock().breakNaturally(itemUsed);
-                        block_middle_4.getBlock().breakNaturally(itemUsed);
+                        System.out.println(block_corner_4.getBlock().getBlockData());
 
-                        block_corner_1.getBlock().breakNaturally(itemUsed);
-                        block_corner_2.getBlock().breakNaturally(itemUsed);
-                        block_corner_3.getBlock().breakNaturally(itemUsed);
-                        block_corner_4.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_1_did_break = block_middle_1.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_2_did_break = block_middle_2.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_3_did_break = block_middle_3.getBlock().breakNaturally(itemUsed);
+                        boolean block_middle_4_did_break = block_middle_4.getBlock().breakNaturally(itemUsed);
+
+                        boolean block_corner_1_did_break = block_corner_1.getBlock().breakNaturally(itemUsed);
+                        boolean block_corner_2_did_break = block_corner_2.getBlock().breakNaturally(itemUsed);
+                        boolean block_corner_3_did_break = block_corner_3.getBlock().breakNaturally(itemUsed);
+                        boolean block_corner_4_did_break = block_corner_4.getBlock().breakNaturally(itemUsed);
+
+                        int damage_to_be_applied = 0;
+
+                        if (block_middle_1_did_break) damage_to_be_applied++;
+                        if (block_middle_2_did_break) damage_to_be_applied++;
+                        if (block_middle_3_did_break) damage_to_be_applied++;
+                        if (block_middle_4_did_break) damage_to_be_applied++;
+
+                        if (block_corner_1_did_break) damage_to_be_applied++;
+                        if (block_corner_2_did_break) damage_to_be_applied++;
+                        if (block_corner_3_did_break) damage_to_be_applied++;
+                        if (block_corner_4_did_break) damage_to_be_applied++;
+
 
                         ItemMeta meta = itemUsed.getItemMeta();
                         if (meta != null) {
                             Damageable damage = ((Damageable)meta);
-                            damage.setDamage(damage.getDamage() + 7);
+                            damage.setDamage(damage.getDamage() + damage_to_be_applied);
                             itemUsed.setItemMeta(meta);
                         }
                     }

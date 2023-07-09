@@ -1,14 +1,17 @@
 package org.mimja156.tunneler;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -97,6 +100,18 @@ public final class Tunneler extends JavaPlugin implements Listener {
                 lore.removeIf(loreItem -> loreItem.equalsIgnoreCase(tunnelerEnchantment.getName()));
                 System.out.println(lore);
                 event.getResult().setLore(lore);
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerInteractEvent(PlayerInteractEvent event) {
+        if (event.getAction().isRightClick()) {
+            Player player = event.getPlayer();
+            ItemStack item = player.getInventory().getItemInMainHand();
+
+            if (item.getEnchantments().containsKey(tunnelerEnchantment) && validTools.contains(item.getType())) {
+                player.sendMessage(Component.text("§9Tunneler: §6Enabled"));
             }
         }
     }
