@@ -1,6 +1,7 @@
 package org.mimja156.tunneler;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -13,6 +14,7 @@ public class BlockBreak {
                 if (Tunneler.validTools.contains(event.getPlayer().getInventory().getItemInMainHand().getType())) {
                     Location blockLocation = event.getBlock().getLocation();
                     Location playerLocation = event.getPlayer().getLocation();
+                    Player player = event.getPlayer();
 
                     int modX = event.getPlayer().getFacing().getModX();
                     int modZ = event.getPlayer().getFacing().getModZ();
@@ -69,23 +71,61 @@ public class BlockBreak {
 
                         ItemStack itemUsed = event.getPlayer().getInventory().getItemInMainHand();
 
-                        block_left_top.getBlock().breakNaturally(itemUsed);
-                        block_left_middle.getBlock().breakNaturally(itemUsed);
-                        block_left_bottom.getBlock().breakNaturally(itemUsed);
+                        float main_block_speed = event.getBlock().getBreakSpeed(player);
 
-                        block_right_top.getBlock().breakNaturally(itemUsed);
-                        block_right_middle.getBlock().breakNaturally(itemUsed);
-                        block_right_bottom.getBlock().breakNaturally(itemUsed);
+                        float block_left_top_speed = block_left_top.getBlock().getBreakSpeed(player);
+                        float block_left_middle_speed = block_left_middle.getBlock().getBreakSpeed(player);
+                        float block_left_bottom_speed = block_left_bottom.getBlock().getBreakSpeed(player);
 
-                        block_middle_top.getBlock().breakNaturally(itemUsed);
-                        block_middle_bottom.getBlock().breakNaturally(itemUsed);
+                        float block_right_top_speed = block_right_top.getBlock().getBreakSpeed(player);
+                        float block_right_middle_speed = block_right_middle.getBlock().getBreakSpeed(player);
+                        float block_right_bottom_speed = block_right_bottom.getBlock().getBreakSpeed(player);
+
+                        float block_middle_top_speed = block_middle_top.getBlock().getBreakSpeed(player);
+                        float block_middle_bottom_speed = block_middle_bottom.getBlock().getBreakSpeed(player);
+
+                        boolean block_left_top_did_break;
+                        boolean block_left_middle_did_break;
+                        boolean block_left_bottom_did_break;
+
+                        boolean block_right_top_did_break;
+                        boolean block_right_middle_did_break;
+                        boolean block_right_bottom_did_break;
+
+                        boolean block_middle_top_did_break;
+                        boolean block_middle_bottom_did_break;
+
+                        block_left_top_did_break = main_block_speed <= block_left_top_speed && block_left_top.getBlock().breakNaturally(itemUsed);
+                        block_left_middle_did_break = main_block_speed <= block_left_middle_speed && block_left_middle.getBlock().breakNaturally(itemUsed);
+                        block_left_bottom_did_break = main_block_speed <= block_left_bottom_speed && block_left_bottom.getBlock().breakNaturally(itemUsed);
+
+                        block_right_top_did_break = main_block_speed <= block_right_top_speed && block_right_top.getBlock().breakNaturally(itemUsed);
+                        block_right_middle_did_break = main_block_speed <= block_right_middle_speed && block_right_middle.getBlock().breakNaturally(itemUsed);
+                        block_right_bottom_did_break = main_block_speed <= block_right_bottom_speed && block_right_bottom.getBlock().breakNaturally(itemUsed);
+
+                        block_middle_top_did_break = main_block_speed <= block_middle_top_speed && block_middle_top.getBlock().breakNaturally(itemUsed);
+                        block_middle_bottom_did_break = main_block_speed <= block_middle_bottom_speed && block_middle_bottom.getBlock().breakNaturally(itemUsed);
+
+                        int damage_to_be_applied = 0;
+
+                        if (block_left_top_did_break) damage_to_be_applied++;
+                        if (block_left_middle_did_break) damage_to_be_applied++;
+                        if (block_left_bottom_did_break) damage_to_be_applied++;
+
+                        if (block_right_top_did_break) damage_to_be_applied++;
+                        if (block_right_middle_did_break) damage_to_be_applied++;
+                        if (block_right_bottom_did_break) damage_to_be_applied++;
+
+                        if (block_middle_top_did_break) damage_to_be_applied++;
+                        if (block_middle_bottom_did_break) damage_to_be_applied++;
 
                         ItemMeta meta = itemUsed.getItemMeta();
                         if (meta != null) {
                             Damageable damage = ((Damageable)meta);
-                            damage.setDamage(damage.getDamage() + 7);
+                            damage.setDamage(damage.getDamage() + damage_to_be_applied);
                             itemUsed.setItemMeta(meta);
                         }
+
                     } else if (playerLocation.getPitch() >= 35 || playerLocation.getPitch() <= -35) {
                         Location block_middle_1 = new Location(
                                 blockLocation.getWorld(),
@@ -137,20 +177,55 @@ public class BlockBreak {
 
                         ItemStack itemUsed = event.getPlayer().getInventory().getItemInMainHand();
 
-                        block_middle_1.getBlock().breakNaturally(itemUsed);
-                        block_middle_2.getBlock().breakNaturally(itemUsed);
-                        block_middle_3.getBlock().breakNaturally(itemUsed);
-                        block_middle_4.getBlock().breakNaturally(itemUsed);
+                        float main_block_speed = event.getBlock().getBreakSpeed(player);
 
-                        block_corner_1.getBlock().breakNaturally(itemUsed);
-                        block_corner_2.getBlock().breakNaturally(itemUsed);
-                        block_corner_3.getBlock().breakNaturally(itemUsed);
-                        block_corner_4.getBlock().breakNaturally(itemUsed);
+                        float block_middle_1_speed = block_middle_1.getBlock().getBreakSpeed(player);
+                        float block_middle_2_speed = block_middle_2.getBlock().getBreakSpeed(player);
+                        float block_middle_3_speed = block_middle_3.getBlock().getBreakSpeed(player);
+                        float block_middle_4_speed = block_middle_4.getBlock().getBreakSpeed(player);
+
+                        float block_corner_1_speed = block_corner_1.getBlock().getBreakSpeed(player);
+                        float block_corner_2_speed = block_corner_2.getBlock().getBreakSpeed(player);
+                        float block_corner_3_speed = block_corner_3.getBlock().getBreakSpeed(player);
+                        float block_corner_4_speed = block_corner_4.getBlock().getBreakSpeed(player);
+
+                        boolean block_middle_1_did_break;
+                        boolean block_middle_2_did_break;
+                        boolean block_middle_3_did_break;
+                        boolean block_middle_4_did_break;
+
+                        boolean block_corner_1_did_break;
+                        boolean block_corner_2_did_break;
+                        boolean block_corner_3_did_break;
+                        boolean block_corner_4_did_break;
+
+                        block_middle_1_did_break = main_block_speed <= block_middle_1_speed && block_middle_1.getBlock().breakNaturally(itemUsed);
+                        block_middle_2_did_break = main_block_speed <= block_middle_2_speed && block_middle_2.getBlock().breakNaturally(itemUsed);
+                        block_middle_3_did_break = main_block_speed <= block_middle_3_speed && block_middle_3.getBlock().breakNaturally(itemUsed);
+                        block_middle_4_did_break = main_block_speed <= block_middle_4_speed && block_middle_4.getBlock().breakNaturally(itemUsed);
+
+                        block_corner_1_did_break = main_block_speed <= block_corner_1_speed && block_corner_1.getBlock().breakNaturally(itemUsed);
+                        block_corner_2_did_break = main_block_speed <= block_corner_2_speed && block_corner_2.getBlock().breakNaturally(itemUsed);
+                        block_corner_3_did_break = main_block_speed <= block_corner_3_speed && block_corner_3.getBlock().breakNaturally(itemUsed);
+                        block_corner_4_did_break = main_block_speed <= block_corner_4_speed && block_corner_4.getBlock().breakNaturally(itemUsed);
+
+                        int damage_to_be_applied = 0;
+
+                        if (block_middle_1_did_break) damage_to_be_applied++;
+                        if (block_middle_2_did_break) damage_to_be_applied++;
+                        if (block_middle_3_did_break) damage_to_be_applied++;
+                        if (block_middle_4_did_break) damage_to_be_applied++;
+
+                        if (block_corner_1_did_break) damage_to_be_applied++;
+                        if (block_corner_2_did_break) damage_to_be_applied++;
+                        if (block_corner_3_did_break) damage_to_be_applied++;
+                        if (block_corner_4_did_break) damage_to_be_applied++;
+
 
                         ItemMeta meta = itemUsed.getItemMeta();
                         if (meta != null) {
                             Damageable damage = ((Damageable)meta);
-                            damage.setDamage(damage.getDamage() + 7);
+                            damage.setDamage(damage.getDamage() + damage_to_be_applied);
                             itemUsed.setItemMeta(meta);
                         }
                     }
