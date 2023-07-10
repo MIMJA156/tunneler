@@ -13,9 +13,13 @@ import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
+import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +27,7 @@ import java.util.stream.Collectors;
 public final class Tunneler extends JavaPlugin implements Listener {
     public static JavaPlugin plugin;
     public static TunnelerEnchantment tunnelerEnchantment = new TunnelerEnchantment(NamespacedKey.minecraft("mimja_tunneler_enchant"));
+    public static NamespacedKey customPickDataKey = NamespacedKey.minecraft("mimja_tunneler_data");
 
     public static List<Material> validTools = new ArrayList<Material>(){{
         add(Material.NETHERITE_PICKAXE);
@@ -32,6 +37,8 @@ public final class Tunneler extends JavaPlugin implements Listener {
         add(Material.STONE_PICKAXE);
         add(Material.WOODEN_PICKAXE);
     }};
+
+    private LocalTime timeSinceLastRightClick = LocalTime.now();
 
     @Override
     public void onEnable() {
@@ -57,7 +64,7 @@ public final class Tunneler extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        BlockBreak.doBreak(event, tunnelerEnchantment);
+        BlockBreak.doBreak(event, tunnelerEnchantment, customPickDataKey);
     }
 
     @EventHandler
@@ -98,7 +105,6 @@ public final class Tunneler extends JavaPlugin implements Listener {
             if (event.getInventory().getUpperItem().getEnchantments().containsKey(tunnelerEnchantment)) {
                 List<String> lore = event.getResult().getLore();
                 lore.removeIf(loreItem -> loreItem.equalsIgnoreCase(tunnelerEnchantment.getName()));
-                System.out.println(lore);
                 event.getResult().setLore(lore);
             }
         }
@@ -106,12 +112,35 @@ public final class Tunneler extends JavaPlugin implements Listener {
 
     @EventHandler
     public void playerInteractEvent(PlayerInteractEvent event) {
-        if (event.getAction().isRightClick()) {
-            Player player = event.getPlayer();
-            ItemStack item = player.getInventory().getItemInMainHand();
+        LocalTime time = LocalTime.now();
+        Player player = event.getPlayer();
 
-            if (item.getEnchantments().containsKey(tunnelerEnchantment) && validTools.contains(item.getType())) {
-                player.sendMessage(Component.text("§9Tunneler: §6Enabled"));
+        if (time.getSecond() > timeSinceLastRightClick.getSecond()) {
+            timeSinceLastRightClick = time.plusNanos(50);
+
+            if (event.getAction().isRightClick()) {
+                ItemStack item = player.getInventory().getItemInMainHand();
+
+                if (item.getEnchantments().containsKey(tunnelerEnchantment) && validTools.contains(item.getType())) {
+                    ItemMeta itemMeta = item.getItemMeta();
+                    CustomItemTagContainer customItemTagContainer = itemMeta.getCustomTagContainer();
+
+                    int dataInPick = 1;
+
+                    if (customItemTagContainer.getCustomTag(customPickDataKey, ItemTagType.INTEGER) != null) {
+                        dataInPick = customItemTagContainer.getCustomTag(customPickDataKey, ItemTagType.INTEGER);
+                    }
+
+                    if (dataInPick != 0) {
+                        customItemTagContainer.setCustomTag(customPickDataKey, ItemTagType.INTEGER, 0);
+                        player.sendMessage(Component.text("§9Tunneler: §4Disabled"));
+                    } else {
+                        customItemTagContainer.setCustomTag(customPickDataKey, ItemTagType.INTEGER, 1);
+                        player.sendMessage(Component.text("§9Tunneler: §2Enabled"));
+                    }
+
+                    item.setItemMeta(itemMeta);
+                }
             }
         }
     }
