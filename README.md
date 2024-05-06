@@ -12,6 +12,4 @@ Depending on how far you are looking down it will either destroy along the wall 
 ![Capture(3)](/md_assets/Capture(5).PNG)
 ![Capture(2)](/md_assets/Capture(6).PNG)
 
-##### (I'm too lazy to make the images all the same size so shush)
-
 ![Editor (2)](/md_assets/mining.gif)
